@@ -1,0 +1,39 @@
+version: '3'
+volumes:
+  mysqldata:
+    driver: "local"
+services:
+  db:
+    # MySQL 5.7 image
+    image: mysql:5.7
+    container_name: mysql57_wordpress
+    environment:
+      MYSQL_ROOT_PASSWORD: P@ssw0rd
+      TZ: 'Asia/Tokyo'
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+    volumes:
+      - "mysqldata:/var/lib/mysql"
+      - "./res/mysql:/etc/mysql/conf.d/"
+      - "./init:/docker-entrypoint-initdb.d"
+    ports:
+      - 3306:3306
+
+  wordpress:
+    image: wordpress:latest
+    container_name: wordpress_dev1
+    depends_on:
+      - db
+    links:
+      - db
+    environment:
+      WORDPRESS_DB_HOST: "db:3306"
+      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
+    ports:
+      - "8080:80"
+    restart: always
+    volumes:
+      - "./res/wordpress:/var/www/html"
